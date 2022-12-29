@@ -74,7 +74,7 @@ const MyTasks = () => {
             </div>
           </div>
         </div>
-        <div className="bg-slate-50 shadow-lg rounded-md p-6">
+        <div className="bg-slate-50 shadow-lg rounded-md lg:p-6 md:p-20 sm:p-20 p-20">
           <div className="flex justify-center items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -1,20 +1,61 @@
 import { Button, Label, TextInput } from "flowbite-react";
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import useTitle from "../../Hooks/useTitle";
+import { useForm } from "react-hook-form";
+import { AuthContext } from "../../Contexts/AuthProvider";
+import { toast } from "react-hot-toast";
 
 const Login = () => {
+  useTitle("Login");
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
+
+  const [loginError, setLoginError] = useState("");
+
+  const { signIn } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
+
+  const handleLogin = (data) => {
+    console.log(data);
+    setLoginError("");
+    signIn(data.email, data.password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        navigate(from, { replace: true });
+        // setLoggedUserEmail(data.email);
+        toast.success("Logged in successfully!");
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoginError(error.message);
+      });
+  };
+
   return (
     <div className="container mx-auto mt-28 mb-52 p-10 rounded-xl">
       <div className="pb-14">
         <h2 className="text-center font-medium text-3xl">
-          Welcome back to <span className="font-semibold underline">Snap Up</span>
+          Welcome back to{" "}
+          <span className="font-semibold underline">Snap Up</span>
         </h2>
         <p className="text-center text-lg mt-3 font-medium">
           Please login to your account!
         </p>
       </div>
-      <form className="flex flex-col gap- lg:w-1/2 mx-auto">
+      <form
+        className="flex flex-col gap- lg:w-1/2 mx-auto"
+        onSubmit={handleSubmit(handleLogin)}
+      >
         <div className="mb-4">
           <div className="mb-2">
             <Label htmlFor="email1" value="Your email" />
@@ -23,8 +64,13 @@ const Login = () => {
             id="email1"
             type="email"
             placeholder="name@gmail.com"
-            required={true}
+            {...register("email", { required: "Email is required" })}
           />
+          {errors.email && (
+            <p className="text-red-600 text-sm ml-1 mt-3" role="alert">
+              {errors.email?.message}
+            </p>
+          )}
         </div>
         <div className="mb-4">
           <div className="mb-2">
@@ -34,15 +80,34 @@ const Login = () => {
             id="password1"
             type="password"
             placeholder="Enter Password"
-            required={true}
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be alteast 6 characters longer!",
+              },
+            })}
           />
+          {errors.password && (
+            <p className="text-red-600 text-sm ml-1 mt-3" role="alert">
+              {errors.password?.message}
+            </p>
+          )}
         </div>
         <Button type="submit" color="dark">
           LOGIN
         </Button>
+        {loginError === "Firebase: Error (auth/user-not-found)." && (
+          <p className="text-red-600 text-center mt-4">
+            Invalid Email. User not found!
+          </p>
+        )}
+        {loginError === "Firebase: Error (auth/wrong-password)." && (
+          <p className="text-red-600 text-center mt-4">Wrong Password</p>
+        )}
         <p className="text-sm mt-4">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-green-500 font-medium">
+          <Link to="/signup" className="text-blue-500 font-medium">
             Sign Up
           </Link>
         </p>
