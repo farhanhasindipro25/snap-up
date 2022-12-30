@@ -1,13 +1,26 @@
-import { Button } from "flowbite-react";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Avatar, Button } from "flowbite-react";
+import React, { useContext, useState } from "react";
+import { toast } from "react-hot-toast";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../Contexts/AuthProvider";
 
 const Menubar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logOut } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    logOut()
+      .then(() => {
+        toast.success("Logged out successfully!");
+        navigate("/");
+      })
+      .catch((error) => console.error(error));
+  };
   return (
     <div className="px-4 py-5 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8">
       <div className="relative flex items-center justify-between">
-        <Link
+        <NavLink
           to=""
           href="/"
           aria-label="Company"
@@ -15,35 +28,69 @@ const Menubar = () => {
           className="inline-flex items-center font-bold"
         >
           TASKBOARDERS
-        </Link>
+        </NavLink>
         <ul className="items-center hidden space-x-8 lg:flex">
           <li>
-            <Link
+            <NavLink
               to="/"
               aria-label="Our product"
               title="Our product"
-              className="font-medium tracking-wide text-slate-900 transition-colors duration-200 hover:text-deep-purple-accent-400"
+              className={({ isActive }) =>
+                isActive
+                  ? "underline text-slate-900 font-semibold text-sm"
+                  : "text-slate-900 font-semibold text-sm"
+              }
             >
               Home
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
+            <NavLink
               to="/task-board"
               aria-label="Our product"
               title="Our product"
-              className="font-medium tracking-wide text-slate-900 transition-colors duration-200 hover:text-deep-purple-accent-400"
+              className={({ isActive }) =>
+                isActive
+                  ? "underline text-slate-900 font-semibold text-sm"
+                  : "text-slate-900 font-semibold text-sm"
+              }
             >
               My Taskboard
-            </Link>
+            </NavLink>
           </li>
         </ul>
         <ul className="items-center hidden space-x-8 lg:flex">
-          <li>
+          {user?.uid ? (
+            <div>
+              {user?.photoURL ? (
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    img={user.photoURL}
+                    rounded={true}
+                    bordered={true}
+                    color="success"
+                  />
+                  <Link title="Logout">
+                    <Button color="dark" onClick={handleLogOut}>
+                      LOGOUT
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link title="Logout">
+                    <Button color="dark" onClick={handleLogOut}>
+                      LOGOUT
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
             <Link to="/login" title="Login">
               <Button color="dark">LOGIN</Button>
             </Link>
-          </li>
+          )}
         </ul>
         <div className="lg:hidden">
           <button
@@ -101,24 +148,32 @@ const Menubar = () => {
                 <nav>
                   <ul className="space-y-4">
                     <li>
-                      <Link
+                      <NavLink
                         to="/"
                         aria-label="Our product"
                         title="Our product"
-                        className="font-medium tracking-wide text-slate-900 transition-colors duration-200 hover:text-deep-purple-accent-400"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "underline text-slate-900 font-semibold text-sm"
+                            : "text-slate-900 font-semibold text-sm"
+                        }
                       >
                         Home
-                      </Link>
+                      </NavLink>
                     </li>
                     <li>
-                      <Link
+                      <NavLink
                         to="/task-board"
                         aria-label="Our product"
                         title="Our product"
-                        className="font-medium tracking-wide text-slate-900 transition-colors duration-200 hover:text-deep-purple-accent-400"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "underline text-slate-900 font-semibold text-sm"
+                            : "text-slate-900 font-semibold text-sm"
+                        }
                       >
                         My Taskboard
-                      </Link>
+                      </NavLink>
                     </li>
                     <li>
                       <Link to="/login" title="Login">

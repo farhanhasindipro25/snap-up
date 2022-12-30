@@ -6,6 +6,7 @@ import useTitle from "../../Hooks/useTitle";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../Contexts/AuthProvider";
 import { toast } from "react-hot-toast";
+import { GoogleAuthProvider } from "firebase/auth";
 
 const Login = () => {
   useTitle("Login");
@@ -17,8 +18,8 @@ const Login = () => {
 
   const [loginError, setLoginError] = useState("");
 
-  const { signIn } = useContext(AuthContext);
-
+  const { signIn, providerLogin } = useContext(AuthContext);
+  const googleProvider = new GoogleAuthProvider();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,6 +39,37 @@ const Login = () => {
       .catch((error) => {
         console.error(error);
         setLoginError(error.message);
+      });
+  };
+
+  const handleGoogleSignIn = () => {
+    providerLogin(googleProvider)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        // setGoogleUserEmail(user.email);
+        // verifyGoogleSignIn(user.email);
+        saveUserToDB(user.displayName, user.email);
+        navigate("/task-board");
+        toast.success("Logged in successfully!");
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const saveUserToDB = (name, email) => {
+    const user = { name, email };
+    console.log(user);
+    fetch("https://snap-up-server.vercel.app/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(user),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Saving user...", data);
+        navigate("/");
       });
   };
 
@@ -117,7 +149,11 @@ const Login = () => {
           <hr className="w-1/2" />
         </div>
         <div>
-          <Button color="light" className="w-full mt-4">
+          <Button
+            color="light"
+            className="w-full mt-4"
+            onClick={handleGoogleSignIn}
+          >
             <span className="pr-3">
               <FcGoogle></FcGoogle>
             </span>

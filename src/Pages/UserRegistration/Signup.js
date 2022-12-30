@@ -1,4 +1,4 @@
-import { Button, Label, TextInput, Toast } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,9 +19,9 @@ const Signup = () => {
   const [createdUserEmail, setCreatedUserEmail] = useState("");
   const [signUpError, setSignUpError] = useState("");
 
-  const saveUserToDB = (name, email, role) => {
-    const user = { name, email, role };
-    fetch("https://b612-used-products-resale.vercel.app/users", {
+  const saveUserToDB = (name, email) => {
+    const user = { name, email };
+    fetch("https://snap-up-server.vercel.app/users", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -30,7 +30,7 @@ const Signup = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        // console.log("Saving user...", data);
+        console.log("Saving user...", data);
         setCreatedUserEmail(email);
       });
   };
@@ -43,20 +43,14 @@ const Signup = () => {
         const user = result.user;
         console.log(user);
         navigate("/task-board");
-        <Toast>
-          <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200"></div>
-          <div className="ml-3 text-sm font-normal">
-            Item moved successfully.
-          </div>
-          <Toast.Toggle />
-        </Toast>;
+        toast.success("User account created successfully!");
         const userInfo = {
           displayName: data.name,
         };
         console.log(userInfo);
         updateUser(userInfo)
           .then(() => {
-            saveUserToDB(data.name, data.email, data.role);
+            saveUserToDB(data.name, data.email);
           })
           .catch((error) => console.error(error));
       })
